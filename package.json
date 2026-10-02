@@ -1,0 +1,24 @@
+{
+  "name": "neon-soul",
+  "version": "1.0.0",
+  "description": "NEON SOUL - roguelite de accion arcade cyberpunk. HTML5 Canvas + Web Audio, sin dependencias.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start": "python -m http.server 8181",
+    "serve": "npx --yes serve . -l 8181",
+    "icons": "node tools/gen-icons.js",
+    "build": "node tools/build-www.js",
+    "cap:init": "npx --yes @capacitor/cli init \"NEON SOUL\" com.neonsoul.game --web-dir www",
+    "cap:add:android": "npm run build && npx cap add android",
+    "cap:sync": "npm run build && npx cap sync android",
+    "cap:open": "npx cap open android",
+    "apk:debug": "npm run cap:sync && cd android && gradlew.bat assembleDebug",
+    "apk:release": "npm run cap:sync && cd android && gradlew.bat assembleRelease"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  }
+}

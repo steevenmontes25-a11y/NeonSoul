@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#08060f">
+<meta name="description" content="NEON SOUL - Roguelite de acción arcade en una ciudad cyberpunk devorada por el NEXUS.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>NEON SOUL</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ======================= CANVAS ======================= -->
+  <canvas id="game-canvas"></canvas>
+  <div id="vignette"></div>
+  <div id="flash-layer"></div>
+
+  <!-- ======================= HUD ======================= -->
+  <div id="hud" class="hidden">
+    <div class="hud-top">
+      <div class="hud-left">
+        <div class="bar-stack">
+          <div class="bar bar-hp"><div class="bar-ghost" id="hp-ghost"></div><div class="bar-fill" id="hp-fill"></div><span class="bar-label" id="hp-text">100/100</span></div>
+          <div class="bar bar-shield hidden" id="shield-bar"><div class="bar-fill" id="shield-fill"></div></div>
+          <div class="bar bar-soul"><div class="bar-fill" id="soul-fill"></div><span class="bar-label" id="soul-text">SOUL</span></div>
+        </div>
+      </div>
+      <div class="hud-center">
+        <div id="zone-name">NEON DISTRICT</div>
+        <div id="room-track"></div>
+      </div>
+      <div class="hud-right">
+        <button id="btn-pause" class="icon-btn" aria-label="Pausa">II</button>
+        <div id="coin-counter"><span class="coin-ico">&#9672;</span><span id="coin-run">0</span></div>
+        <div id="timer">00:00</div>
+      </div>
+    </div>
+
+    <div id="combo-display"><span id="combo-num">0</span><span id="combo-x">x</span></div>
+    <div id="state-indicator"><span id="state-text">FURIA</span></div>
+    <div id="boss-bar-wrap" class="hidden">
+      <div id="boss-name">THE WATCHER</div>
+      <div class="boss-bar"><div id="boss-ghost"></div><div id="boss-fill"></div></div>
+      <div id="boss-phases"></div>
+    </div>
+    <div id="toast-wrap"></div>
+    <div id="fps-meter" class="hidden">60</div>
+  </div>
+
+  <!-- ======================= TOUCH CONTROLS ======================= -->
+  <div id="touch-controls" class="hidden">
+    <div id="joystick-zone">
+      <div id="joystick-base"><div id="joystick-knob"></div></div>
+    </div>
+    <div id="action-zone">
+      <button class="act-btn btn-attack" id="tb-attack"><span>&#9876;</span><i class="cd-ring" id="cd-attack"></i></button>
+      <button class="act-btn btn-dash" id="tb-dash"><span>&raquo;</span><i class="cd-ring" id="cd-dash"></i></button>
+      <button class="act-btn btn-ability" id="tb-ability"><span>&#10022;</span><i class="cd-ring" id="cd-ability"></i></button>
+      <button class="act-btn btn-shift" id="tb-shift"><span>&#9680;</span><i class="cd-ring" id="cd-shift"></i></button>
+    </div>
+  </div>
+
+  <!-- ======================= BOOT ======================= -->
+  <div id="screen-boot" class="screen active">
+    <div class="boot-inner">
+      <div class="logo-wrap">
+        <div class="logo-glitch" data-text="NEON SOUL">NEON SOUL</div>
+        <div class="logo-sub">NEXUS PROTOCOL</div>
+      </div>
+      <div class="boot-bar"><div id="boot-fill"></div></div>
+      <div class="boot-tip" id="boot-tip">Inicializando núcleo...</div>
+      <button id="btn-boot" class="btn btn-primary hidden">TOCA PARA ENTRAR</button>
+    </div>
+  </div>
+
+  <!-- ======================= MAIN MENU ======================= -->
+  <div id="screen-menu" class="screen">
+    <div class="menu-bg-grid"></div>
+    <header class="menu-header">
+      <div class="logo-wrap small">
+        <div class="logo-glitch" data-text="NEON SOUL">NEON SOUL</div>
+      </div>
+      <div class="wallet">
+        <div class="wallet-item"><span class="coin-ico">&#9672;</span><span id="w-coins">0</span></div>
+        <div class="wallet-item shard"><span class="coin-ico">&#10070;</span><span id="w-shards">0</span></div>
+        <div class="wallet-item lvl">LV <span id="w-level">1</span></div>
+      </div>
+    </header>
+    <div class="xp-strip"><div id="xp-fill"></div><span id="xp-text">0 / 100 XP</span></div>
+    <nav class="menu-grid">
+      <button class="menu-btn big" data-go="play"><span class="mb-ico">&#9654;</span><span class="mb-txt">JUGAR</span><span class="mb-sub">Iniciar incursión</span></button>
+      <button class="menu-btn" data-go="characters"><span class="mb-ico">&#9735;</span><span class="mb-txt">PERSONAJE</span></button>
+      <button class="menu-btn" data-go="meta"><span class="mb-ico">&#9004;</span><span class="mb-txt">MEJORAS</span></button>
+      <button class="menu-btn" data-go="shop"><span class="mb-ico">&#9832;</span><span class="mb-txt">TIENDA</span></button>
+      <button class="menu-btn" data-go="missions"><span class="mb-ico">&#10003;</span><span class="mb-txt">MISIONES</span><span class="badge hidden" id="badge-missions">0</span></button>
+      <button class="menu-btn" data-go="achievements"><span class="mb-ico">&#9733;</span><span class="mb-txt">LOGROS</span></button>
+      <button class="menu-btn" data-go="stats"><span class="mb-ico">&#9636;</span><span class="mb-txt">ESTADÍSTICAS</span></button>
+      <button class="menu-btn" data-go="settings"><span class="mb-ico">&#9881;</span><span class="mb-txt">CONFIG</span></button>
+    </nav>
+    <footer class="menu-footer">
+      <span id="best-line">RÉCORD: 0</span>
+      <span class="ver">v1.0.0</span>
+    </footer>
+  </div>
+
+  <!-- ======================= CHARACTERS ======================= -->
+  <div id="screen-characters" class="screen panel-screen">
+    <header class="panel-head"><button class="back-btn" data-back>&lsaquo;</button><h2>PERSONAJE</h2><div class="wallet-mini"><span class="coin-ico">&#9672;</span><span class="w-coins">0</span></div></header>
+    <div class="panel-body" id="char-list"></div>
+  </div>
+
+  <!-- ======================= META UPGRADES ======================= -->
+  <div id="screen-meta" class="screen panel-screen">
+    <header class="panel-head"><button class="back-btn" data-back>&lsaquo;</button><h2>NÚCLEO DEL ALMA</h2><div class="wallet-mini"><span class="coin-ico">&#10070;</span><span class="w-shards">0</span></div></header>
+    <div class="panel-body" id="meta-list"></div>
+  </div>
+
+  <!-- ======================= SHOP ======================= -->
+  <div id="screen-shop" class="screen panel-screen">
+    <header class="panel-head"><button class="back-btn" data-back>&lsaquo;</button><h2>MERCADO NEXUS</h2><div class="wallet-mini"><span class="coin-ico">&#9672;</span><span class="w-coins">0</span></div></header>
+    <div class="tabs" id="shop-tabs">
+      <button class="tab active" data-tab="chars">PERSONAJES</button>
+      <button class="tab" data-tab="skins">SKINS</button>
+      <button class="tab" data-tab="fx">EFECTOS</button>
+      <button class="tab" data-tab="boost">MEJORAS</button>
+    </div>
+    <div class="panel-body" id="shop-list"></div>
+  </div>
+
+  <!-- ======================= MISSIONS ======================= -->
+  <div id="screen-missions" class="screen panel-screen">
+    <header class="panel-head"><button class="back-btn" data-back>&lsaquo;</button><h2>MISIONES</h2><div class="wallet-mini"><span class="coin-ico">&#9672;</span><span class="w-coins">0</span></div></header>
+    <div class="tabs" id="mission-tabs">
+      <button class="tab active" data-tab="daily">DIARIAS</button>
+      <button class="tab" data-tab="perm">PERMANENTES</button>
+    </div>
+    <div class="panel-body" id="mission-list"></div>
+  </div>
+
+  <!-- ======================= ACHIEVEMENTS ======================= -->
+  <div id="screen-achievements" class="screen panel-screen">
+    <header class="panel-head"><button class="back-btn" data-back>&lsaquo;</button><h2>LOGROS</h2><div class="ach-count" id="ach-count">0/27</div></header>
+    <div class="panel-body" id="ach-list"></div>
+  </div>
+
+  <!-- ======================= STATS ======================= -->
+  <div id="screen-stats" class="screen panel-screen">
+    <header class="panel-head"><button class="back-btn" data-back>&lsaquo;</button><h2>ESTADÍSTICAS</h2></header>
+    <div class="panel-body" id="stats-list"></div>
+  </div>
+
+  <!-- ======================= SETTINGS ======================= -->
+  <div id="screen-settings" class="screen panel-screen">
+    <header class="panel-head"><button class="back-btn" data-back>&lsaquo;</button><h2>CONFIGURACIÓN</h2></header>
+    <div class="panel-body" id="settings-list"></div>
+  </div>
+
+  <!-- ======================= MAP / NODE SELECT ======================= -->
+  <div id="screen-map" class="screen overlay-screen">
+    <div class="map-inner">
+      <div class="map-zone" id="map-zone">ZONA 1 &mdash; NEON DISTRICT</div>
+      <div class="map-progress" id="map-progress"></div>
+      <div class="map-title">ELIGE TU CAMINO</div>
+      <div class="map-nodes" id="map-nodes"></div>
+      <div class="map-stats" id="map-stats"></div>
+    </div>
+  </div>
+
+  <!-- ======================= REWARD / UPGRADE ======================= -->
+  <div id="screen-reward" class="screen overlay-screen">
+    <div class="reward-inner">
+      <div class="reward-title" id="reward-title">ELIGE UNA MEJORA</div>
+      <div class="reward-sub" id="reward-sub">Sala despejada</div>
+      <div class="reward-cards" id="reward-cards"></div>
+      <button class="btn btn-ghost" id="reward-reroll"><span>&#8635; REROLL</span><small id="reroll-count">2</small></button>
+    </div>
+  </div>
+
+  <!-- ======================= EVENT ======================= -->
+  <div id="screen-event" class="screen overlay-screen">
+    <div class="event-inner">
+      <div class="event-icon" id="event-icon">&#8982;</div>
+      <div class="event-title" id="event-title">SEÑAL DESCONOCIDA</div>
+      <div class="event-text" id="event-text"></div>
+      <div class="event-choices" id="event-choices"></div>
+    </div>
+  </div>
+
+  <!-- ======================= RUN SHOP ======================= -->
+  <div id="screen-runshop" class="screen overlay-screen">
+    <div class="runshop-inner">
+      <div class="reward-title">CONTRABANDISTA</div>
+      <div class="reward-sub"><span class="coin-ico">&#9672;</span> <span id="runshop-coins">0</span> disponibles</div>
+      <div class="runshop-items" id="runshop-items"></div>
+      <button class="btn btn-primary" id="runshop-leave">SALIR</button>
+    </div>
+  </div>
+
+  <!-- ======================= PAUSE ======================= -->
+  <div id="screen-pause" class="screen overlay-screen">
+    <div class="pause-inner">
+      <h2 class="neon-title">PAUSA</h2>
+      <div class="pause-stats" id="pause-stats"></div>
+      <div class="pause-buttons">
+        <button class="btn btn-primary" id="pause-resume">CONTINUAR</button>
+        <button class="btn" id="pause-build">VER BUILD</button>
+        <button class="btn" id="pause-settings">CONFIG</button>
+        <button class="btn btn-danger" id="pause-quit">ABANDONAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= BUILD VIEW ======================= -->
+  <div id="screen-build" class="screen overlay-screen">
+    <div class="build-inner">
+      <h2 class="neon-title">BUILD ACTUAL</h2>
+      <div class="build-stats" id="build-stats"></div>
+      <div class="build-upgrades" id="build-upgrades"></div>
+      <button class="btn btn-primary" id="build-close">CERRAR</button>
+    </div>
+  </div>
+
+  <!-- ======================= GAME OVER ======================= -->
+  <div id="screen-gameover" class="screen overlay-screen">
+    <div class="go-inner">
+      <div class="go-title" id="go-title">ALMA DISUELTA</div>
+      <div class="go-sub" id="go-sub"></div>
+      <div class="go-score"><span id="go-score">0</span><small>PUNTUACIÓN</small></div>
+      <div class="go-grid" id="go-grid"></div>
+      <div class="go-rewards" id="go-rewards"></div>
+      <div class="go-buttons">
+        <button class="btn btn-primary" id="go-retry">REINTENTAR</button>
+        <button class="btn" id="go-menu">MENÚ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="unlock-pop" class="hidden"><div class="unlock-card"><div class="unlock-ico" id="unlock-ico">&#9733;</div><div><div class="unlock-kind" id="unlock-kind">LOGRO</div><div class="unlock-name" id="unlock-name"></div></div></div></div>
+
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/input.js"></script>
+<script src="js/particles.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/upgrades.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/enemies.js"></script>
+<script src="js/boss.js"></script>
+<script src="js/procedural.js"></script>
+<script src="js/player.js"></script>
+<script src="js/meta.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/achievements.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

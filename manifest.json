@@ -1,0 +1,20 @@
+{
+  "name": "NEON SOUL",
+  "short_name": "NEON SOUL",
+  "description": "Roguelite de accion arcade en una ciudad cyberpunk devorada por el NEXUS. Domina el Soul Shift.",
+  "id": "/neon-soul/",
+  "start_url": ".",
+  "scope": ".",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#06040c",
+  "theme_color": "#08060f",
+  "lang": "es",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
